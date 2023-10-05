@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>산책로</title>
+    <script src="apikey.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gasoek+One&family=Jua&family=Noto+Sans+KR&display=swap" rel="stylesheet">
+    
+    
+    <style>
+      .secondbar{
+        position: fixed;
+        display: none;
+        background-color: #80d4f6;
+      }
+      #map{
+        margin : auto;
+      }
+      article{
+        display: flex;
+        margin: auto;
+      }
+      img{
+        width: 470px;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+
+      <div id="topmenu">
+        <h1><a href="index.html" id="title">🐕댕댕백과</a></h1>
+
+        <nav>
+          <ul>
+            <li><a class="hover1" href="dogimage.html" id="proud">강아지 자랑해요</a></li>
+            <li id='locationMenu'><a class="hover1" href="location.html">산책로</a>
+              <ul class="secondbar">
+                <li><a class="province" id="seoul">수도권</a></li>
+                <li><a class="province" id="gangwon">강원권</a></li> 
+                <li><a class="province" id="chungcheong">충청권</a></li>
+                <li><a class="province" id="jeolla">전라권</a></li>
+                <li><a class="province" id="gyeongsang">경상권</a></li>
+                <li><a class="province" id="jeju">제주권</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <script>
+        $(document).ready(function(){
+          $('#locationMenu').mouseenter(function(){
+            console.log('mouseenter!!');
+            var submenu = $(this).find('.secondbar');
+            submenu.slideDown();
+          }).mouseleave(function(){
+            console.log('mouseout!!');
+            var submenu = $(this).find('.secondbar');
+            submenu.slideUp();
+          });
+        });
+
+      </script>
+
+      <div>
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" placeholder="" aria-label="검색" aria-describedby="button-addon2">
+          <button class="btn btn-outline-secondary" type="button" id="button-addon2">검색</button>
+        </div>
+      </div>
+      
+
+    </header>
+
+    
+
+    <section>
+
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" id="modal_button" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Launch demo modal
+      </button>
+
+      <script>
+        const modalButton = document.getElementById('modal_button');
+        modalButton.hidden = true;
+      </script>
+
+      <!-- Modal -->
+      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="infomation">
+              <div id="address_name"></div>
+              <div id="phone"></div>
+              <div id="dogPicture"><img ></div>
+              
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <article>
+        <div id="map" style="width: 1300px; height: 780px;"></div>
+      
+        <script type="text/javascript" id = mapScript src = "//dapi.kakao.com/v2/maps/sdk.js?appkey=562b49500c914af20d7e270c61698744"></script>
+        <script>
+          let markers = [];
+          var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+              mapOption = { 
+                center: new kakao.maps.LatLng(37.491539, 126.918663), // 지도의 중심좌표
+                level: 10 // 지도의 확대 레벨
+              };
+          
+          //지도 생성
+          var map = new kakao.maps.Map(mapContainer, mapOption);
+          var markerPosition = new kakao.maps.LatLng(37.491539, 126.918663);
+
+          function moveCenter(latitude, longitude){
+            var moveLatLon = new kakao.maps.LatLng(latitude, longitude);
+            map.setCenter(moveLatLon);
+
+          }
+
+          var provinces = document.querySelectorAll(".secondbar .province");
+
+          for (var i = 0; i < provinces.length; i++){
+            provinces[i].addEventListener('click', click);
+          }
+
+          function click(e){
+            if(this.innerHTML === '수도권'){
+              moveCenter(37.491539, 126.918663);
+              level: 10;
+            }
+            else if(this.innerHTML === '강원권'){
+              moveCenter(37.885277, 127.729864);
+              level: 10;
+            }
+            else if(this.innerHTML === '충청권'){
+              moveCenter(36.347648, 127.384051);
+              level: 10;
+            }
+            else if(this.innerHTML === '전라권'){
+              moveCenter(35.160515, 126.850849);
+              level: 10;
+            }
+            else if(this.innerHTML === '경상권'){
+              moveCenter(36.019961, 129.343448);
+              level: 10;
+            }
+            else if(this.innerHTML === '제주권'){
+              moveCenter(33.488314, 126.498437);
+              level: 10;
+            }
+          }
+
+          //마커
+          var positions = [
+          {
+            content: '<div>보라매공원 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.491078, 126.919388)
+          },
+          {
+            content: '<div>월드컵공원 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.566327, 126.893205)
+          },
+          {
+            content: '<div>포항댕댕동산</div>', 
+            latlng: new kakao.maps.LatLng(35.948892, 129.384235)
+          },
+          {
+            content: '<div>구로구 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.507119, 126.874455)
+          },
+          {
+            content: '<div>매헌시민의 숲</div>', 
+            latlng: new kakao.maps.LatLng(37.470913, 127.035793)
+          },
+          {
+            content: '<div>초안산근린공원 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.642681, 127.042668)
+          },
+          {
+            content: '<div>송파구 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.496379, 127.099963)
+          },
+          {
+            content: '<div>북서울꿈의 숲 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.623572, 127.041456)
+          },
+          {
+            content: '<div>어린이대공원 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.545649, 127.084164)
+          },
+          {
+            content: '<div>탄천 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.437242, 127.119626)
+          },
+          {
+            content: '<div>구갈 레스피아 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.266652, 127.132141)
+          },
+          {
+            content: '<div>매송휴게소 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.265314, 126.888884)
+          },
+          {
+            content: '<div>가평휴게소 애견파크</div>', 
+            latlng: new kakao.maps.LatLng(37.796311, 127.478943)
+          },
+          {
+            content: '<div>기흥레스피아호수공원 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.253737, 127.095203)
+          },
+          {
+            content: '<div>광명시 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.443965, 126.897566)
+          },
+          {
+            content: '<div>성곡 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.323211, 126.736802)
+          },
+          {
+            content: '<div>광교호수공원 반려견놀이터</div>', 
+            latlng: new kakao.maps.LatLng(37.285380, 127.078744)
+          },
+          {
+            content: '<div>가평휴게소 애견파크</div>', 
+            latlng: new kakao.maps.LatLng(37.796311, 127.478943)
+          },
+          {
+            content: '<div>속초 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(38.214532, 128.569378)
+          },
+          {
+            content: '<div>행담도휴게소 애견파크</div>', 
+            latlng: new kakao.maps.LatLng(36.944983, 126.807623)
+          },
+          {
+            content: '<div>서산휴게소 애견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(36.734164, 126.566518)
+          },
+          {
+            content: '<div>서산휴게소 애견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(36.734164, 126.566518)
+          },
+          {
+            content: '<div>광주 운남동근린공원 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(35.171018, 126.816126)
+          },
+          {
+            content: '<div>부산 울림공원 반려견 놀이터</div>', 
+            latlng: new kakao.maps.LatLng(35.101416, 128.926804)
+          },
+          ];
+
+          for (var i = 0; i < positions.length; i++) {
+              // 마커를 생성
+            var marker = new kakao.maps.Marker({
+                map: map, // 마커를 표시할 지도
+                position: positions[i].latlng, // 마커의 위치
+            });
+
+            markers.push(marker);
+
+                // 마커에 표시할 인포윈도우를 생성
+              var infowindow = new kakao.maps.InfoWindow({
+                content: positions[i].content
+              });
+
+              // 클로저를 사용하여 클릭 이벤트 핸들러 정의
+            (function (infowindow) {
+              kakao.maps.event.addListener(marker, 'click', function () {
+                var content = infowindow.getContent();
+                content = content.replace(/<.*?>/g, '');
+                console.log(content);
+
+                $.ajax({
+                  method: "GET",
+                  url: "https://dapi.kakao.com/v2/local/search/keyword?query=" + content,
+                  headers: { Authorization: config.kakaoApi }
+                })
+                .done(function (data) {
+                  console.log(data);
+                  $('#address_name').replaceWith('<div id="address_name">' + data.documents[0].address_name + '</div>');
+                  $('#phone').replaceWith('<div id="phone">' + data.documents[0].phone + '</div>');
+                })
+                $(document).ready(function(){
+                  $('#exampleModalLabel').replaceWith('<h1 class="modal-title fs-5" id="exampleModalLabel">' + content + '</h1>')
+                  $.ajax({
+                  method: "GET",
+                  url: "https://dapi.kakao.com/v2/search/image?query=" + content,
+                  headers: { Authorization: config.kakaoApi }
+                })
+                .done(function (image) {
+                  console.log(image);
+                  $('#dogPicture').html("<div id='dogPicture'><img referrerpolicy='no-referrer' src=" + image.documents[0].image_url + "></div>");
+                  $('#modal_button').click();
+                });
+                })
+              });
+
+            })(infowindow);
+
+            // 마커에 mouseover, mouseout 이벤트를 등록
+            kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow));
+            kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow));
+          }  
+
+            // 인포윈도우를 표시하는 클로저를 만드는 함수 
+            function makeOverListener(map, marker, infowindow) {
+                return function() {
+                    infowindow.open(map, marker);
+                };
+            }
+
+            // 인포윈도우를 닫는 클로저를 만드는 함수
+            function makeOutListener(infowindow) {
+              return function() {
+                infowindow.close();
+              };
+            }
+
+        </script>
+       </article>
+    </section>
+
+    </body>
+</html>
